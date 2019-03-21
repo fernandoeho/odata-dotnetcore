@@ -28,8 +28,9 @@ namespace OData.DotNetCore.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             services.AddOData();
-            // Workaround: https://github.com/OData/WebApi/issues/1177
+
             services.AddMvcCore(options =>
             {
                 foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
@@ -41,6 +42,7 @@ namespace OData.DotNetCore.Api
                     inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
                 }
             });
+
             services.AddSwaggerDocument();
         }
 
@@ -56,8 +58,10 @@ namespace OData.DotNetCore.Api
             }
 
             app.UseHttpsRedirection();
+
             app.UseSwagger();
             app.UseSwaggerUi3();
+            
             app.UseMvc(routeBuilder => 
             {
                 routeBuilder.EnableDependencyInjection();
