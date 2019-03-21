@@ -14,15 +14,29 @@ namespace OData.DotNetCore.Api.Controllers
         [EnableQuery]
         public IActionResult GetAll()
         {
-            var schoolId = Guid.NewGuid();
-            List<Student> students = new List<Student>()
-            {
-                new Student() { Id = Guid.NewGuid(), Name = "James Bond", SchoolId = schoolId},
-                new Student() { Id = Guid.NewGuid(), Name = "Jason Bourne", SchoolId = schoolId},
-                new Student() { Id = Guid.NewGuid(), Name = "John Wick", SchoolId = schoolId}
-            };
+            var students = CreateStudents();
 
             return Ok(students);
+        }
+
+        private IEnumerable<Student> CreateStudents()
+        {
+            var school = new School()
+            {
+                Id = Guid.NewGuid(),
+                Name = "My Elementary School",
+                City = "Sorocaba",
+                State = "São Paulo"
+            };
+
+            List<Student> students = new List<Student>()
+            {
+                new Student() { Id = Guid.NewGuid(), Name = "James Bond", SchoolId = school.Id, School = school},
+                new Student() { Id = Guid.NewGuid(), Name = "Jason Bourne", SchoolId = school.Id, School = school},
+                new Student() { Id = Guid.NewGuid(), Name = "John Wick", SchoolId = school.Id, School = school}
+            };
+
+            return students;
         }
     }
 }
