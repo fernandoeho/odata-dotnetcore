@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace OData.DotNetCore.Api
 {
@@ -29,21 +31,12 @@ namespace OData.DotNetCore.Api
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddOData();
-
-            services.AddMvcCore(options =>
+            services.AddSwaggerGen(c =>
             {
-                foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
-                {
-                    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
-                }
-                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
-                {
-                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
-                }
+                c.SwaggerDoc("v1", new Info { Title = "OData Sample API", Version = "v1" });
             });
 
-            services.AddSwaggerDocument();
+            services.AddOData();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -60,8 +53,12 @@ namespace OData.DotNetCore.Api
             app.UseHttpsRedirection();
 
             app.UseSwagger();
-            app.UseSwaggerUi3();
-            
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "OData Sample API V1");
+            });
+
             app.UseMvc(routeBuilder => 
             {
                 routeBuilder.EnableDependencyInjection();
